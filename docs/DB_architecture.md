@@ -29,4 +29,3 @@ erDiagram
 
     OBJECT_TYPE ||--o{ OUTPUT : has
     INPUT ||--o{ OUTPUT : produces
-    ```
