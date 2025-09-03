@@ -4,7 +4,7 @@ from sqlalchemy import String, Column, Text
 from sqlalchemy.orm import relationship
 from .base_model import Base, BaseModel
 
-class Object_type(BaseModel, Base):
+class ObjectType(BaseModel, Base):
     """Creating an Object_type table in the database
     Args
         name: name of the object type
