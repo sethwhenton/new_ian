@@ -2,7 +2,7 @@
 """Engine - Module"""
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
-from ..inputs import Base
+from src.storage.base_model import Base
 from os import getenv
 from datetime import datetime
 
@@ -90,8 +90,8 @@ class Engine:
         """
             Closing the session
         """
-        self.reload()
-        self.__session.close()
+        if self.__session:
+            self.__session.close()
 
     def update(self, cls, id, **kwargs):
         """Update an object in the database

@@ -4,7 +4,7 @@
 from flask import Flask
 from os import getenv
 from flask import Flask, jsonify, make_response
-from .storage import *
+from src import storage
 from flask_restful import Api
 from flask_cors import CORS
 from flasgger import Swagger
@@ -23,7 +23,7 @@ def page_not_found(e):
 @app.teardown_appcontext
 def teardown(self) -> None:
     """Close the storage session"""
-    storage.close()
+    storage.database.close()
 
 @app.errorhandler(400)
 def handle_bad_request(e):

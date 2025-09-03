@@ -47,8 +47,7 @@ class OutputList(Resource):
             return make_response(jsonify(responseobject), 403)
 
         new_output = Output(**data)
-        engine.new(new_output)
-        engine.save()
+        new_output.save()
 
         return output_schema.dump(new_output), 201
 

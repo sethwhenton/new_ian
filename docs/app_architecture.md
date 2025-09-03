@@ -1,3 +1,6 @@
+# Application Architecture
+
+```mermaid
 ---
 config:
   layout: elk
@@ -5,7 +8,7 @@ config:
 flowchart LR
   %% ==== CLIENT ====
   U["User"] -- Upload image(s) + select type --> FE["Frontend (Svelte/React)"]
-  FE -- POST /api/jobs  (images, meta) --> API["Backend API (Flask + Gunicorn)"]
+  FE -- POST /api/jobs  (images, meta) --> API["Backend API (Flask)"]
   FE <-- SSE/WebSocket: job status & progress --> API
 
   %% ==== BACKEND CORE ====
@@ -22,7 +25,7 @@ flowchart LR
 
   %% ==== STORAGE ====
   STORE --> FS[("Image/Object Storage: ./media or S3/MinIO")]
-  REPO --> DB[("PostgreSQL")]
+  REPO --> DB[("MySQL")]
 
   %% ==== ASYNC JOBS & BATCHING ====
   subgraph Async_Tasks["Asynchronous Inference"]

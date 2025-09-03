@@ -4,7 +4,7 @@ Description:
     It holds common (a union of) characteristics for other models
     Its herited by other model classes in this project
 """
-import storage
+from src import storage
 from uuid import uuid4
 from datetime import datetime
 from sqlalchemy.ext.declarative import declarative_base
@@ -41,12 +41,12 @@ class BaseModel:
         """
         # If storage is database, Update the date if the object dict
         self.updated_at = datetime.now()
-        storage.engine.new(self)
-        storage.engine.save()
+        storage.database.new(self)
+        storage.database.save()
 
     def delete(self) -> None:
         """delete the current instance from the storage"""
-        storage.storage.delete(self)
+        storage.database.delete(self)
 
     def __str__(self) -> str:
         """Return string representation of the object"""

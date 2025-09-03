@@ -15,6 +15,6 @@ class ObjectType(BaseModel, Base):
     description = Column(String(128), nullable=False)
     outputs = relationship("Output", backref="input_id", cascade="all, delete-orphan")
 
-     def __init__(self):
+    def __init__(self):
         """initializes Object_type class"""
         super().__init__()

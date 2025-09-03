@@ -50,8 +50,7 @@ class InputList(Resource):
         # Must consider Batch processing
         # model prediction and adding data to the output table
         # remember to improve output schema in order to output nested information
-        engine.new(new_input)
-        engine.save()
+        new_input.save()
 
         return input_schema.dump(new_input), 201
 

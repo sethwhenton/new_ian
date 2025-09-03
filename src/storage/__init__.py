@@ -9,7 +9,7 @@ from os import getenv
 
 
 # load from database
-db = getenv('HH_MYSQL_DB')
+db = getenv('OBJ_DETECT_MYSQL_DB')
 if db:
-    engine = engine.Engine()
-    engine.reload()
+    database = engine.Engine()
+    database.reload()

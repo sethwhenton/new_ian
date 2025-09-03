@@ -43,8 +43,7 @@ class ObjectTypeList(Resource):
             return make_response(jsonify(responseobject), 403)
 
         new_obj = ObjectType(**data)
-        engine.new(new_obj)
-        engine.save()
+        new_obj.save()
 
         return obj_schema.dump(new_obj), 201
 
