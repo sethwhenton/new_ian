@@ -16,5 +16,5 @@ run_tests:
     - pip install -r requirements.txt
     - export OBJ_DETECT_ENV=test
     - export OBJ_DETECT_MYSQL_DB=$MYSQL_DATABASE
-    - coverage report
+    - python3 -m unittest discover
     - deactivate
