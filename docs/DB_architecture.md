@@ -1,3 +1,4 @@
+```mermaid
 erDiagram
     OBJECT_TYPE {
         int id PK
@@ -28,3 +29,4 @@ erDiagram
 
     OBJECT_TYPE ||--o{ OUTPUT : has
     INPUT ||--o{ OUTPUT : produces
+    ```
