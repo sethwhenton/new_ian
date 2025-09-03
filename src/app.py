@@ -8,11 +8,13 @@ from src import storage
 from flask_restful import Api
 from flask_cors import CORS
 from flasgger import Swagger
+from .docs.swagger_template import swagger_template
 
 
 # create the app instance
 app = Flask(__name__)
-swagger = Swagger(app)
+swagger = Swagger(app, template= swagger_template)
+
 cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 @app.errorhandler(404)

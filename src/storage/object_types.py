@@ -10,10 +10,10 @@ class ObjectType(BaseModel, Base):
         name: name of the object type
         description: A simple description of the object
     """
-    __tablename__ = 'Object_type'
+    __tablename__ = 'object_types'
     name = Column(String(128), nullable=False, unique=True)
     description = Column(String(128), nullable=False)
-    outputs = relationship("Output", backref="input_id", cascade="all, delete-orphan")
+    outputs = relationship("Output", backref="object_output", cascade="all, delete-orphan")
 
     def __init__(self):
         """initializes Object_type class"""

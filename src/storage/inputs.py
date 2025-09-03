@@ -13,7 +13,7 @@ class Input(BaseModel, Base):
     __tablename__ = 'inputs'
     description = Column(Text, nullable=False)
     image_path = Column(String(200), nullable=False, unique=True)
-    outputs = relationship("Output", backref="input_id", cascade="all, delete-orphan")
+    outputs = relationship("Output", backref="input_output", cascade="all, delete-orphan")
 
     def __init__(self):
         """initializes Input class"""

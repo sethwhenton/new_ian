@@ -16,7 +16,7 @@ class Output(BaseModel, Base):
     predicted_count = Column(Integer, nullable=False)
     corrected_count = Column(Integer)
     pred_confidence = Column(Float(), nullable=False)
-    object_type_id = Column(String(60), ForeignKey("objects.id"), nullable=False)
+    object_type_id = Column(String(60), ForeignKey("object_types.id"), nullable=False)
     input_id = Column(String(60), ForeignKey("inputs.id"), nullable=False)
 
     def __init__(self):

@@ -22,12 +22,7 @@ class Engine:
         OBJ_DETECT_MYSQL_DB = getenv('OBJ_DETECT_MYSQL_DB')
         OBJ_DETECT_ENV = getenv('OBJ_DETECT_ENV')
         if OBJ_DETECT_ENV != 'test':
-            exec_db = 'mysql+mysqldb://{}:{}@{}/{}'.format(
-                                                OBJ_DETECT_MYSQL_USER,
-                                                OBJ_DETECT_MYSQL_PWD,
-                                                OBJ_DETECT_MYSQL_HOST,
-                                                OBJ_DETECT_MYSQL_DB
-                                                    )
+            exec_db = f'mysql+mysqldb://{OBJ_DETECT_MYSQL_USER}:{OBJ_DETECT_MYSQL_PWD}@{OBJ_DETECT_MYSQL_HOST}/{OBJ_DETECT_MYSQL_DB}'
         else:  # Configure an SQLITE DB instance for testing
             exec_db = f'sqlite:///{OBJ_DETECT_MYSQL_DB}'
         # Create the engine
