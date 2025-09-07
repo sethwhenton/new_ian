@@ -55,7 +55,7 @@ class ObjectCountingPipeline:
             self._load_zero_shot_classifier()
             
             self.models_loaded = True
-            logger.info("✅ AI models loaded successfully")
+            logger.info("AI models loaded successfully")
             
         except Exception as e:
             logger.error(f"❌ Failed to load AI models: {e}")
@@ -86,7 +86,7 @@ class ObjectCountingPipeline:
                 min_mask_region_area=500,
             )
             
-            logger.info("✅ SAM model loaded successfully")
+            logger.info("SAM model loaded successfully")
             
         except Exception as e:
             logger.error(f"Failed to load SAM model: {e}")
@@ -103,7 +103,7 @@ class ObjectCountingPipeline:
             self.classifier = AutoModelForImageClassification.from_pretrained(model_name)
             self.classifier.to(self.device)
             
-            logger.info("✅ Image classifier loaded successfully")
+            logger.info("Image classifier loaded successfully")
             
         except Exception as e:
             logger.error(f"Failed to load classifier: {e}")
@@ -119,7 +119,7 @@ class ObjectCountingPipeline:
                 model="typeform/distilbert-base-uncased-mnli"
             )
             
-            logger.info("✅ Zero-shot classifier loaded successfully")
+            logger.info("Zero-shot classifier loaded successfully")
             
         except Exception as e:
             logger.error(f"Failed to load zero-shot classifier: {e}")
@@ -166,7 +166,7 @@ class ObjectCountingPipeline:
                 'detected_objects': detection_result.get('detected_objects', [])
             }
             
-            logger.info(f"✅ Image processed successfully: {detection_result['count']} {object_type}s detected")
+            logger.info(f"Image processed successfully: {detection_result['count']} {object_type}s detected")
             return result
             
         except Exception as e:
@@ -224,7 +224,7 @@ class ObjectCountingPipeline:
                 'image_dimensions': image.size
             }
             
-            logger.info(f"✅ Auto-detection completed: {total_count} total objects detected across {len(detected_objects)} types")
+            logger.info(f"Auto-detection completed: {total_count} total objects detected across {len(detected_objects)} types")
             return result
             
         except Exception as e:

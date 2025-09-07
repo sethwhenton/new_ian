@@ -37,39 +37,73 @@ class OutputList(Resource):
           400:
             description: Could not fetch data from storage
         """
-        from ...storage import ObjectType, Input
-        
-        outputs = database.all(Output)
-        if not outputs:
-            return [], 200
-        
-        # Enhance outputs with object type names and image paths
-        enhanced_outputs = []
-        for output in outputs:
-            # Get object type name
-            object_type = database.get(ObjectType, id=output.object_type_id)
-            object_type_name = object_type.name if object_type else "Unknown"
+        try:
+            from ...storage import ObjectType, Input
             
-            # Get image path
-            input_record = database.get(Input, id=output.input_id)
-            image_path = input_record.image_path if input_record else "Unknown"
+            # Handle uninitialized database gracefully
+            if database is None or not hasattr(database, 'all'):
+                return [], 200
             
-            # Create enhanced output
-            enhanced_output = {
-                'id': output.id,
-                'created_at': output.created_at.isoformat() if hasattr(output, 'created_at') else None,
-                'updated_at': output.updated_at.isoformat() if hasattr(output, 'updated_at') else None,
-                'predicted_count': output.predicted_count,
-                'corrected_count': output.corrected_count,
-                'pred_confidence': output.pred_confidence,
-                'object_type_id': output.object_type_id,
-                'input_id': output.input_id,
-                'object_type': object_type_name,
-                'image_path': image_path
-            }
-            enhanced_outputs.append(enhanced_output)
-        
-        return enhanced_outputs, 200
+            # Pagination and filtering params
+            try:
+                page = int(request.args.get('page', 1))
+                per_page = int(request.args.get('per_page', 20))
+            except Exception:
+                page, per_page = 1, 20
+            per_page = max(1, min(per_page, 100))
+            filter_object_type = request.args.get('object_type')
+
+            outputs = database.all(Output) or []
+
+            # Enhance outputs with object type names and image paths
+            enhanced_outputs = []
+            for output in outputs:
+                # Get object type name
+                object_type = database.get(ObjectType, id=output.object_type_id)
+                object_type_name = object_type.name if object_type else "Unknown"
+                
+                # Get image path
+                input_record = database.get(Input, id=output.input_id)
+                image_path = input_record.image_path if input_record else "Unknown"
+                
+                # Create enhanced output
+                enhanced_output = {
+                    'id': output.id,
+                    'created_at': output.created_at.isoformat() if hasattr(output, 'created_at') else None,
+                    'updated_at': output.updated_at.isoformat() if hasattr(output, 'updated_at') else None,
+                    'predicted_count': output.predicted_count,
+                    'corrected_count': output.corrected_count,
+                    'pred_confidence': output.pred_confidence,
+                    'object_type_id': output.object_type_id,
+                    'input_id': output.input_id,
+                    'object_type': object_type_name,
+                    'image_path': image_path
+                }
+                enhanced_outputs.append(enhanced_output)
+
+            # Optional filter by object type name
+            if filter_object_type:
+                filter_l = filter_object_type.strip().lower()
+                enhanced_outputs = [e for e in enhanced_outputs if (e.get('object_type') or '').lower() == filter_l]
+
+            # Server-side pagination
+            total = len(enhanced_outputs)
+            start = max(0, (page - 1) * per_page)
+            end = start + per_page
+            paged = enhanced_outputs[start:end]
+
+            resp = make_response(jsonify(paged), 200)
+            resp.headers['X-Total-Count'] = str(total)
+            resp.headers['X-Page'] = str(page)
+            resp.headers['X-Per-Page'] = str(per_page)
+            return resp
+        except Exception as e:
+            # Return an empty list instead of 500 to keep history page functional,
+            # but include error message for debugging
+            return make_response(jsonify({
+                'error': f'Failed to fetch results: {str(e)}',
+                'results': []
+            }), 200)
 
     def post(self):
         """
@@ -158,15 +192,23 @@ class OutputSingle(Resource):
         """
         try:
             output = database.get(Output, id=output_id)
-            if output:
-                return (output_schema.dump(output), 200)
-            else:
+            if not output:
                 return create_error_response(
                     NotFoundAPIError(
                         f'Output with ID {output_id} not found',
                         'The requested output record does not exist'
                     )
                 )
+
+            # Enhance with object type name and image path for frontend details view
+            object_type = database.get(ObjectType, id=output.object_type_id)
+            input_record = database.get(Input, id=output.input_id)
+
+            enhanced = output_schema.dump(output)
+            enhanced['object_type'] = object_type.name if object_type else 'Unknown'
+            enhanced['image_path'] = input_record.image_path if input_record else None
+
+            return (enhanced, 200)
         except Exception as e:
             return handle_database_error(e)
 

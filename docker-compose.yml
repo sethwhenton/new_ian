@@ -54,27 +54,16 @@ services:
     build:
       context: ./seth_front_end
       dockerfile: Dockerfile
+      args:
+        - VITE_API_BASE_URL=http://localhost:5000
     ports:
-      - "3000:3000"
-    environment:
-      - REACT_APP_API_URL=http://localhost:5000
+      - "3000:80"
     depends_on:
       - ai-object-counter
     restart: unless-stopped
 
   # Nginx Reverse Proxy (optional)
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./ssl:/etc/nginx/ssl
-    depends_on:
-      - ai-object-counter
-      - frontend
-    restart: unless-stopped
+  # nginx reverse proxy not required for local dev; frontend calls backend via VITE_API_BASE_URL
 
 volumes:
   mysql_data:

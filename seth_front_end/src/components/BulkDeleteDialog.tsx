@@ -83,11 +83,11 @@ export function BulkDeleteDialog({
           current: 'Deletion completed'
         } : null);
         
-        // Wait a moment to show completion, then close
+        // Close quickly for snappier UX
         setTimeout(() => {
           onDeleteComplete(response.deleted_result_ids);
           onClose();
-        }, 2000);
+        }, 200);
         
       } else {
         throw new Error('Bulk deletion failed');
@@ -304,6 +304,5 @@ export function BulkDeleteDialog({
     </Dialog>
   );
 }
-
 
 

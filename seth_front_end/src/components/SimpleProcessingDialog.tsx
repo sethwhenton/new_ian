@@ -57,10 +57,10 @@ export function SimpleProcessingDialog({
         setProcessingStage(`Processing image ${i + 1} of ${imageFiles.length}...`);
 
         try {
-          const result = await api.countAllObjects(
+          const result = await api.countObjects(
             imageFile,
             selectedObjectType,
-            `Detect and count ${selectedObjectType} objects in this image`
+            `Count ${selectedObjectType} objects in this image`
           );
 
           const processedImage: ProcessedImage = {

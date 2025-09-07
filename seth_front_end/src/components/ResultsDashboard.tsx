@@ -775,7 +775,7 @@ export function ResultsDashboard({ images, onBack, onViewHistory }: ResultsDashb
       
       {/* Image Detail Dialog */}
       <Dialog open={isDetailDialogOpen} onOpenChange={setIsDetailDialogOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-6xl w-[95vw] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3">
               <Camera className="h-6 w-6 text-blue-500" />
@@ -963,4 +963,3 @@ export function ResultsDashboard({ images, onBack, onViewHistory }: ResultsDashb
     </div>
   );
 }
-

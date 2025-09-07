@@ -7,6 +7,7 @@ import { Badge } from './ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Separator } from './ui/separator';
 import { ResultDetailsDialog } from './ResultDetailsDialog';
+import { ResultDetailsPage } from '../pages/ResultDetailsPage';
 import { BulkDeleteDialog } from './BulkDeleteDialog';
 
 interface HistoryResult {
@@ -48,6 +49,7 @@ export function ImageHistory({ onBack }: HistoryProps) {
   
   // Result details dialog state
   const [showDetailsDialog, setShowDetailsDialog] = useState(false);
+  const [showDetailsPage, setShowDetailsPage] = useState(false);
   const [selectedResultId, setSelectedResultId] = useState<string | null>(null);
   
   // Refresh message for user feedback
@@ -136,7 +138,8 @@ export function ImageHistory({ onBack }: HistoryProps) {
   // Handle clicking on a result item
   const handleResultClick = (resultId: string) => {
     setSelectedResultId(resultId);
-    setShowDetailsDialog(true);
+    // Use full-page details instead of dialog
+    setShowDetailsPage(true);
   };
   
   // Handle deleting a result from the detailed dialog
@@ -293,24 +296,8 @@ export function ImageHistory({ onBack }: HistoryProps) {
     loadResults();
   }, [currentPage, selectedFilter]);
 
-  // Auto-refresh when component mounts and when returning from other pages
-  useEffect(() => {
-    console.log('📱 ImageHistory component mounted - auto-refreshing data');
-    // Always refresh when component mounts (user might be returning from results page)
-    refreshData();
-  }, []); // Empty dependency array means this runs once when component mounts
-
-  // Periodic refresh to catch any missed updates
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      console.log('🔄 Periodic refresh check...');
-      if (!loading && !error) {
-        refreshData();
-      }
-    }, 30000); // Refresh every 30 seconds
-    
-    return () => clearInterval(intervalId);
-  }, [loading, error]);
+  // Auto-refresh removed to avoid flicker and unexpected reloads.
+  // Users can manually refresh via the Refresh Data button.
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -653,7 +640,7 @@ export function ImageHistory({ onBack }: HistoryProps) {
                       <div className="aspect-square rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden">
                         {result.image_path ? (
                           <img 
-                            src={`http://127.0.0.1:5000/uploads/${result.image_path}`}
+                            src={result.image_path.startsWith('media/') ? `/${result.image_path}` : result.image_path}
                             alt="Analyzed image"
                             className="w-full h-full object-cover"
                             onLoad={() => {
@@ -661,7 +648,7 @@ export function ImageHistory({ onBack }: HistoryProps) {
                             }}
                             onError={(e) => {
                               console.error('❌ Image failed to load:', result.image_path);
-                              console.error('   URL:', `http://127.0.0.1:5000/uploads/${result.image_path}`);
+                              console.error('   URL:', result.image_path.startsWith('media/') ? `/${result.image_path}` : result.image_path);
                               const target = e.target as HTMLImageElement;
                               target.style.display = 'none';
                               target.parentElement!.innerHTML = '<div class="text-gray-400"><svg class="h-12 w-12" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M4 3a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V5a2 2 0 00-2-2H4zm12 12H4l4-8 3 6 2-4 3 6z" clip-rule="evenodd" /></svg></div>';
@@ -779,14 +766,17 @@ export function ImageHistory({ onBack }: HistoryProps) {
         )}
       </div>
       
-      {/* Result Details Dialog */}
-      <ResultDetailsDialog
-        isOpen={showDetailsDialog}
-        onClose={() => setShowDetailsDialog(false)}
-        resultId={selectedResultId}
-        onDelete={handleResultDelete}
-        onUpdate={handleResultUpdate}
-      />
+      {/* Result Details Full Page */}
+      {showDetailsPage && selectedResultId && (
+        <div className="fixed inset-0 z-50 bg-white">
+          <ResultDetailsPage
+            resultId={selectedResultId}
+            onBack={() => setShowDetailsPage(false)}
+            onDeleted={handleResultDelete}
+            onUpdated={handleResultUpdate}
+          />
+        </div>
+      )}
       
       {/* Bulk Delete Dialog */}
       <BulkDeleteDialog

@@ -336,7 +336,7 @@ export function Results({ images, onBack, onViewHistory }: ResultsProps) {
 
         {/* Feedback Dialog */}
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogContent className="max-w-5xl w-[95vw] max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle>Provide Feedback</DialogTitle>
             </DialogHeader>

@@ -6,6 +6,7 @@ from flask_restful import Resource
 from flask import request, jsonify, make_response
 from ...storage import database, Input, Output, ObjectType
 from ..utils.image_utils import upload_image
+from ...config import config
 from ...pipeline.pipeline import pipeline
 from .monitoring import monitoring
 from ..utils.error_handlers import (
@@ -254,13 +255,14 @@ class BatchProcessing(Resource):
             
             image_filename = image_result
             image_path = os.path.join('media', image_filename)
+            fs_image_path = os.path.join(config.MEDIA_DIRECTORY, image_filename)
             
             # Process image with AI pipeline
             try:
                 if auto_detect:
-                    ai_result = pipeline.process_image_auto(image_path)
+                    ai_result = pipeline.process_image_auto(fs_image_path)
                 else:
-                    ai_result = pipeline.process_image(image_path, object_type)
+                    ai_result = pipeline.process_image(fs_image_path, object_type)
                 
                 if not ai_result.get('success', False):
                     return {

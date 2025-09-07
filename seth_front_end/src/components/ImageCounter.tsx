@@ -178,10 +178,10 @@ export function ImageCounter() {
     try {
       console.log(`🔄 Retrying analysis for: ${image.file.name}`);
       
-      const result = await api.countAllObjects(
+      const result = await api.countObjects(
         image.file,
         selectedObjectType,
-        `Detect and count ${selectedObjectType} objects in this image`
+        `Count ${selectedObjectType} objects in this image`
       );
       
       const totalCount = result.predicted_count || 0;

@@ -1,5 +1,6 @@
 // API service for backend communication
-const API_BASE_URL = ''; // Use relative URLs with Vite proxy
+// Use Vite env when available (Docker/production), fallback to relative for dev proxy
+const API_BASE_URL = (typeof import.meta !== 'undefined' && (import.meta as any).env?.VITE_API_BASE_URL) || '';
 
 export interface ApiObjectCount {
   type: string;
@@ -272,33 +273,34 @@ class ObjectCountingAPI {
    */
   async getResults(page = 1, perPage = 10, objectType: string | null = null) {
     try {
-      // Backend uses /api/results endpoint
-      let url = `${API_BASE_URL}/api/results`;
+      // Backend supports pagination/filtering via query params
+      let url = `${API_BASE_URL}/api/results?page=${page}&per_page=${perPage}`;
+      if (objectType) {
+        url += `&object_type=${encodeURIComponent(objectType)}`;
+      }
       
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`Failed to get results: ${response.status}`);
       }
-      const data = await response.json();
-      
-      // Simple client-side filtering and pagination since backend doesn't support it yet
-      let results = Array.isArray(data) ? data : [];
-      
-      if (objectType) {
-        results = results.filter((result: any) => result.object_type === objectType);
-      }
-      
-      const startIndex = (page - 1) * perPage;
-      const endIndex = startIndex + perPage;
-      const paginatedResults = results.slice(startIndex, endIndex);
-      
+      const results = await response.json();
+      const totalHeader = response.headers.get('X-Total-Count');
+      const total = totalHeader ? parseInt(totalHeader, 10) : (Array.isArray(results) ? results.length : 0);
+      const pages = Math.max(1, Math.ceil(total / perPage));
       return {
-        results: paginatedResults,
-        total: results.length,
+        results: Array.isArray(results) ? results : [],
+        total,
         page,
         per_page: perPage,
-        total_pages: Math.ceil(results.length / perPage)
-      };
+        total_pages: pages,
+        // Add pagination object for components that expect nested pagination
+        pagination: {
+          page,
+          per_page: perPage,
+          total,
+          pages,
+        },
+      } as any;
     } catch (error) {
       console.error('Failed to get results:', error);
       throw error;
@@ -499,13 +501,12 @@ class ObjectCountingAPI {
    */
   async getResultDetails(resultId: string) {
     try {
-      // Backend doesn't have individual result details endpoint yet
-      console.warn('Result details endpoint not implemented in backend, using fallback');
-      return {
-        success: true,
-        result_id: resultId,
-        message: 'Result details not available (fallback mode)'
-      };
+      const response = await fetch(`${API_BASE_URL}/api/results/${resultId}`);
+      if (!response.ok) {
+        await this.handleApiError(response, 'Failed to get result details');
+      }
+      const result = await response.json();
+      return { success: true, result } as any;
     } catch (error) {
       console.error('Failed to get result details:', error);
       throw error;
@@ -517,13 +518,15 @@ class ObjectCountingAPI {
    */
   async deleteResult(resultId: string) {
     try {
-      // Backend doesn't have delete endpoint yet
-      console.warn('Delete result endpoint not implemented in backend, using fallback');
-      return {
-        success: true,
-        result_id: resultId,
-        message: 'Delete operation not available (fallback mode)'
-      };
+      const response = await fetch(`${API_BASE_URL}/api/results/${resultId}`, {
+        method: 'DELETE',
+      });
+      if (!response.ok) {
+        await this.handleApiError(response, 'Failed to delete result');
+      }
+      // Backend returns a message; normalize to { success: true }
+      const data = await response.json().catch(() => ({}));
+      return { success: true, ...data } as any;
     } catch (error) {
       console.error('Failed to delete result:', error);
       throw error;
@@ -549,13 +552,21 @@ class ObjectCountingAPI {
    */
   async bulkDeleteResults(_resultIds: string[]) {
     try {
-      // Backend doesn't have bulk delete endpoint yet
-      console.warn('Bulk delete endpoint not implemented in backend, using fallback');
-      return {
-        success: true,
-        deleted_count: 0,
-        message: 'Bulk delete operation not available (fallback mode)'
-      };
+      const resultIds = _resultIds || [];
+      let deleted = 0;
+      const deletedIds: string[] = [];
+      for (const id of resultIds) {
+        try {
+          const res = await this.deleteResult(id);
+          if (res && (res.success || res.message === 'resource successfully deleted')) {
+            deleted += 1;
+            deletedIds.push(id);
+          }
+        } catch (e) {
+          console.warn('Failed to delete result', id, e);
+        }
+      }
+      return { success: true, deleted_count: deleted, failed_count: resultIds.length - deleted, deleted_result_ids: deletedIds } as any;
     } catch (error) {
       console.error('Failed to bulk delete results:', error);
       throw error;
@@ -565,6 +576,3 @@ class ObjectCountingAPI {
 
 // Export a singleton instance
 export default new ObjectCountingAPI();
-
-
-

@@ -27,18 +27,28 @@ class Engine:
         else:  # Use SQLite for development and testing
             exec_db = f'sqlite:///{OBJ_DETECT_MYSQL_DB}'
         
-        # Create the engine
-        self.__engine = create_engine(exec_db, pool_pre_ping=True)
+        # Create the engine (special handling for SQLite in threaded dev server)
+        if exec_db.startswith('sqlite:///'):
+            self.__engine = create_engine(
+                exec_db,
+                pool_pre_ping=True,
+                connect_args={"check_same_thread": False}
+            )
+        else:
+            self.__engine = create_engine(exec_db, pool_pre_ping=True)
         
         # Initialize session
         session_db = sessionmaker(bind=self.__engine, expire_on_commit=False)
         Session = scoped_session(session_db)
         self.__session = Session()
 
-        if OBJ_DETECT_ENV in ['test', 'development']:
-            # Drop all tables to ensure a clean slate for testing
+        if OBJ_DETECT_ENV == 'test':
+            # In test env, reset DB to a clean state each run
             Base.metadata.drop_all(self.__engine)
-            Base.metadata.create_all(self.__engine)  # Recreate tables for testing
+            Base.metadata.create_all(self.__engine)
+        else:
+            # In development/production, ensure tables exist but do not drop data
+            Base.metadata.create_all(self.__engine)
 
     def new(self, obj):
         """

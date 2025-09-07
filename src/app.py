@@ -11,6 +11,8 @@ from flasgger import Swagger
 from .docs.swagger_template import swagger_template
 from .config import config
 import logging
+from flask import send_from_directory
+import os
 
 
 # create the app instance
@@ -65,9 +67,15 @@ api.add_resource(InputList, '/api/count')
 app.add_url_rule('/api/count-all', 'count_all_objects', InputList().count_all_objects, methods=['POST'])
 # api.add_resource(InputSingle, '/api/input/<id>')
 api.add_resource(ObjectTypeList, '/api/object-types')
-api.add_resource(ObjectTypeSingle, '/api/object/<id>')
+api.add_resource(ObjectTypeSingle, '/api/object/<string:obj_id>')
 api.add_resource(OutputList, '/api/results')
-api.add_resource(OutputSingle, '/api/correct/<id>')
+# Single result operations: register both URLs on one resource with a single endpoint name
+api.add_resource(
+    OutputSingle,
+    '/api/results/<string:output_id>',
+    '/api/correct/<string:output_id>',
+    endpoint='output_single'
+)
 
 # Performance monitoring endpoints
 api.add_resource(PerformanceMetrics, '/api/performance/metrics')
@@ -79,6 +87,12 @@ api.add_resource(SystemHealth, '/api/performance/health')
 # Batch processing endpoints
 api.add_resource(BatchProcessing, '/api/batch/process')
 api.add_resource(BatchStatus, '/api/batch/status')
+
+# Serve media files
+@app.route('/media/<path:filename>')
+def serve_media(filename):
+    media_dir = config.MEDIA_DIRECTORY if os.path.isabs(config.MEDIA_DIRECTORY) else os.path.join(os.getcwd(), config.MEDIA_DIRECTORY)
+    return send_from_directory(media_dir, filename)
 
 # run this file to run the app
 if __name__ == "__main__":

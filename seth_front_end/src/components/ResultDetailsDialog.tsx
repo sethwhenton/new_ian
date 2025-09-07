@@ -227,7 +227,7 @@ export function ResultDetailsDialog({
   
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-screen h-screen max-w-none max-h-none rounded-none p-0 overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-3">
             <Camera className="h-6 w-6 text-blue-500" />
@@ -329,7 +329,7 @@ export function ResultDetailsDialog({
                     <div className="aspect-square rounded-lg bg-gray-100 flex items-center justify-center overflow-hidden">
                       {result.image_path ? (
                         <img 
-                          src={`http://127.0.0.1:5000/uploads/${result.image_path}`}
+                          src={result.image_path && result.image_path.startsWith('media/') ? `/${result.image_path}` : result.image_path}
                           alt="Analyzed image"
                           className="w-full h-full object-cover"
                         />
