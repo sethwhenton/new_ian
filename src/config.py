@@ -46,6 +46,14 @@ class Config:
     SAM_CHECKPOINT_URL = os.getenv('SAM_CHECKPOINT_URL', 
         'https://dl.fbaipublicfiles.com/segment_anything/sam_vit_b_01ec64.pth')
     TRANSFORMERS_MODEL = os.getenv('TRANSFORMERS_MODEL', 'google/vit-base-patch16-224')
+    # Performance tuning (safe defaults for CPU)
+    FAST_MODE = os.getenv('FAST_MODE', 'True').lower() == 'true'
+    MAX_IMAGE_DIM = int(os.getenv('MAX_IMAGE_DIM', '1024'))  # downscale long edge
+    SAM_POINTS_PER_SIDE = int(os.getenv('SAM_POINTS_PER_SIDE', '8'))
+    SAM_PRED_IOU_THRESH = float(os.getenv('SAM_PRED_IOU_THRESH', '0.8'))
+    SAM_STABILITY_SCORE_THRESH = float(os.getenv('SAM_STABILITY_SCORE_THRESH', '0.9'))
+    SAM_MIN_MASK_REGION_AREA = int(os.getenv('SAM_MIN_MASK_REGION_AREA', '2000'))
+    TOP_SEGMENTS = int(os.getenv('TOP_SEGMENTS', '15'))
     
     # Performance Configuration
     MAX_BATCH_SIZE = int(os.getenv('MAX_BATCH_SIZE', '10'))
