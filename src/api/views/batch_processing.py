@@ -136,7 +136,7 @@ class BatchProcessing(Resource):
                     )
                 )
             
-            print(f"🔄 Starting batch processing: {len(files)} images, batch_id: {batch_id}")
+            print(f"Starting batch processing: {len(files)} images, batch_id: {batch_id}")
             
             # Process each image
             results = []
@@ -175,7 +175,7 @@ class BatchProcessing(Resource):
                 'created_at': datetime.now().isoformat()
             }
             
-            print(f"✅ Batch processing completed: {successful_count}/{len(files)} successful")
+            print(f"Batch processing completed: {successful_count}/{len(files)} successful")
             return make_response(jsonify(response_data), 200)
             
         except Exception as e:
@@ -185,7 +185,7 @@ class BatchProcessing(Resource):
                 total_processing_time,
                 False
             )
-            print(f"❌ Batch processing failed: {str(e)}")
+            print(f"Batch processing failed: {str(e)}")
             return create_error_response(e, include_details=True)
     
     def _process_single_image(self, file, object_type: str, description: str, 
@@ -226,7 +226,7 @@ class BatchProcessing(Resource):
                     'processing_time': 0
                 }
             
-            print(f"  📸 Processing image {image_index}/{total_images}: {file.filename}")
+            print(f"  Processing image {image_index}/{total_images}: {file.filename}")
             
             # Create a temporary request object for upload_image
             from flask import Request
@@ -335,7 +335,7 @@ class BatchProcessing(Resource):
                 True
             )
             
-            print(f"  ✅ Image {image_index}/{total_images} processed successfully: {ai_result.get('predicted_count', 0)} objects")
+            print(f"  Image {image_index}/{total_images} processed successfully: {ai_result.get('predicted_count', 0)} objects")
             
             return {
                 'image_name': file.filename,
@@ -350,7 +350,7 @@ class BatchProcessing(Resource):
             
         except Exception as e:
             processing_time = time.time() - image_start_time
-            print(f"  ❌ Image {image_index}/{total_images} failed: {str(e)}")
+            print(f"   Image {image_index}/{total_images} failed: {str(e)}")
             return {
                 'image_name': file.filename if hasattr(file, 'filename') else 'unknown',
                 'success': False,

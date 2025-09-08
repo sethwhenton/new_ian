@@ -133,7 +133,7 @@ class InputList(Resource):
             fs_image_path = os.path.join(config.MEDIA_DIRECTORY, image_filename)
             
             # Process image with AI pipeline
-            print(f"🔍 Processing image: {image_path} for object type: {object_type}")
+            print(f"Processing image: {image_path} for object type: {object_type}")
             try:
                 ai_result = pipeline.process_image(fs_image_path, object_type)
                 
@@ -188,13 +188,13 @@ class InputList(Resource):
             success = ai_result.get('success', True)
             monitoring.record_request(object_type, processing_time, success)
             
-            print(f"✅ Successfully processed image: {ai_result.get('predicted_count', 0)} {object_type}s detected")
+            print(f"Successfully processed image: {ai_result.get('predicted_count', 0)} {object_type}s detected")
             return make_response(jsonify(response_data), 201)
             
         except Exception as e:
             # Record failed request
             monitoring.record_request(object_type, 0.0, False)
-            print(f"❌ Error processing image: {str(e)}")
+            print(f"Error processing image: {str(e)}")
             return create_error_response(e, include_details=True)
 
     def count_all_objects(self):
@@ -272,7 +272,7 @@ class InputList(Resource):
             fs_image_path = os.path.join(config.MEDIA_DIRECTORY, image_filename)
             
             # Process image with AI pipeline (auto-detection)
-            print(f"🔍 Auto-detecting objects in image: {image_path}")
+            print(f"Auto-detecting objects in image: {image_path}")
             ai_result = pipeline.process_image_auto(fs_image_path)
             
             if not ai_result.get('success', False):
@@ -324,13 +324,13 @@ class InputList(Resource):
             success = ai_result.get('success', True)
             monitoring.record_request(f"{object_type}_auto", processing_time, success)
             
-            print(f"✅ Successfully auto-detected objects: {ai_result.get('predicted_count', 0)} total objects")
+            print(f"Successfully auto-detected objects: {ai_result.get('predicted_count', 0)} total objects")
             return make_response(jsonify(response_data), 201)
             
         except Exception as e:
             # Record failed request
             monitoring.record_request(f"{object_type}_auto", 0.0, False)
-            print(f"❌ Error auto-detecting objects: {str(e)}")
+            print(f"Error auto-detecting objects: {str(e)}")
             return create_error_response(e, include_details=True)
 
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   X, 
   Trash2, 
@@ -52,6 +52,19 @@ export function BulkDeleteDialog({
   const [progress, setProgress] = useState<DeletionProgress | null>(null);
   const [error, setError] = useState<string>('');
   const [showDetails, setShowDetails] = useState(false);
+
+  // Keep IDs readable in a compact list
+  const shortId = (id: string) => (id && id.length > 12 ? `${id.slice(0, 6)}…${id.slice(-4)}` : id);
+
+  // Reset internal state whenever the dialog is opened to avoid stale UI
+  useEffect(() => {
+    if (isOpen) {
+      setIsDeleting(false);
+      setProgress(null);
+      setError('');
+      setShowDetails(false);
+    }
+  }, [isOpen]);
   
   const handleBulkDelete = async () => {
     if (selectedResults.length === 0) return;
@@ -127,22 +140,27 @@ export function BulkDeleteDialog({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-3 text-red-600">
-            <Trash2 className="h-6 w-6" />
-            <span>Bulk Delete Confirmation</span>
-            <Badge variant="outline" className="text-red-600 border-red-300">
-              {selectedResults.length} items
+          <div className="flex items-start justify-between gap-3">
+            <DialogTitle className="flex items-center gap-2">
+              <Trash2 className="h-5 w-5 text-red-600" />
+              <span>Bulk Delete Confirmation</span>
+            </DialogTitle>
+            <Badge variant="secondary" className="shrink-0">
+              {selectedResults.length} {selectedResults.length === 1 ? 'item' : 'items'}
             </Badge>
-          </DialogTitle>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Review the impact below before deleting. This action cannot be undone.
+          </p>
         </DialogHeader>
-        
+
         {error && (
           <Alert className="border-red-200 bg-red-50">
             <AlertTriangle className="h-4 w-4 text-red-500" />
             <AlertDescription className="text-red-700">{error}</AlertDescription>
           </Alert>
         )}
-        
+
         {/* Deletion Progress */}
         {progress && (
           <Card className="border-blue-200 bg-blue-50">
@@ -221,7 +239,7 @@ export function BulkDeleteDialog({
             <Alert className="border-red-200 bg-red-50">
               <AlertTriangle className="h-4 w-4 text-red-500" />
               <AlertDescription className="text-red-700">
-                <strong>Warning:</strong> This action cannot be undone. All selected items will be permanently deleted from the database and their associated image files will be removed from the server.
+                Permanently remove the selected records and their image files.
               </AlertDescription>
             </Alert>
             
@@ -255,14 +273,16 @@ export function BulkDeleteDialog({
                 
                 <div className="space-y-2">
                   <h4 className="font-medium">Selected Items:</h4>
-                  <div className="max-h-40 overflow-y-auto space-y-2">
+                  <div className="max-h-48 overflow-y-auto space-y-2 pr-1">
                     {selectedResults.map((result) => (
                       <div key={result.id} className="flex items-center justify-between p-2 bg-gray-50 rounded border">
                         <div className="flex items-center gap-3">
-                          <Badge variant="outline">ID {result.id}</Badge>
+                          <Badge title={result.id} variant="secondary" className="font-mono text-xs max-w-[220px] truncate">
+                            ID {shortId(result.id)}
+                          </Badge>
                           <span className="font-medium capitalize">{result.object_type}</span>
                           <span className="text-sm text-gray-600">
-                            {result.predicted_count} objects
+                            {result.predicted_count} {result.predicted_count === 1 ? 'object' : 'objects'}
                           </span>
                         </div>
                         <div className="text-xs text-gray-500">
@@ -274,7 +294,7 @@ export function BulkDeleteDialog({
                 </div>
               </CardContent>
             </Card>
-            
+
             {/* Action Buttons */}
             <div className="flex items-center justify-end gap-3">
               <Button
@@ -295,7 +315,7 @@ export function BulkDeleteDialog({
                 ) : (
                   <Trash2 className="h-4 w-4" />
                 )}
-                {isDeleting ? 'Deleting...' : `Delete ${selectedResults.length} Items`}
+                {isDeleting ? 'Deleting...' : `Delete ${selectedResults.length} ${selectedResults.length === 1 ? 'Item' : 'Items'}`}
               </Button>
             </div>
           </div>
@@ -304,5 +324,3 @@ export function BulkDeleteDialog({
     </Dialog>
   );
 }
-
-

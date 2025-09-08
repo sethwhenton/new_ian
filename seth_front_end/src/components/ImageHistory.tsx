@@ -778,13 +778,15 @@ export function ImageHistory({ onBack }: HistoryProps) {
         </div>
       )}
       
-      {/* Bulk Delete Dialog */}
-      <BulkDeleteDialog
-        isOpen={showBulkDeleteDialog}
-        onClose={() => setShowBulkDeleteDialog(false)}
-        selectedResults={getSelectedResults()}
-        onDeleteComplete={handleBulkDeleteComplete}
-      />
+      {/* Bulk Delete Dialog (mount only when open to clear internal state) */}
+      {showBulkDeleteDialog && (
+        <BulkDeleteDialog
+          isOpen={showBulkDeleteDialog}
+          onClose={() => setShowBulkDeleteDialog(false)}
+          selectedResults={getSelectedResults()}
+          onDeleteComplete={handleBulkDeleteComplete}
+        />
+      )}
     </div>
   );
 }
